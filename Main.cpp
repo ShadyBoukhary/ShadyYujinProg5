@@ -1,4 +1,11 @@
-#include "TeamQueue.h"
+/**
+* This program demonstrates team queue.
+* @version 1.0 2017-12-01
+* @course CMPS2143 Dr. Stringfellow
+* @author Yujin Yoshimura, Shady Boukhary
+*/
+
+//#include "TeamQueue.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -22,10 +29,13 @@ int getNumOfTeams(string line);
 void printScenario(int& scenario_no);
 
 // Creates an array of teams. The index of the array is the team number.
-void createTeams(int** teams, int num_of_teams);
+void createTeams(int** &teams, int num_of_teams);
 
 // Add members into a team. The index of the array is the ID number.
 void addMembers(int** teams, int team_no, string line);
+
+// Displays Team number and all members of the team. Debug purpose.
+void printTeam(int** teams, int team_no);
 
 // Check if the input is enqueue.
 bool isEnqueue(string line);
@@ -36,6 +46,9 @@ int getEnqueueID(string line);
 // Searches ID number in the array of teams and tell its team number.
 int getTeamNo(int** teams, int num_of_teams, int id_no);
 
+// Displays Member's ID and team number. Debug purpose.
+void printTeam(int id_no, int team_no);
+
 // Check if the input is dequeue.
 bool isDequeue(string line);
 
@@ -43,10 +56,10 @@ bool isDequeue(string line);
 bool isStop(string line);
 
 // Deletes an array of teams and all of its content.
-void deleteTeams(int** teams, int num_of_teams);
+void deleteTeams(int** &teams, int num_of_teams);
 
 int main() {
-	string lines[65535];
+	string lines[255];
 	int length = 0;
 	int line_no = 0;
 	int scenario_no = 1;
@@ -55,30 +68,32 @@ int main() {
 	int id_no;
 	int** teams;
 	bool stop;
-	
+
 	length = import(lines);
-	while (line_no < length && num_of_teams > 0){
+	while (line_no < length && num_of_teams > 0) {
 		if (isTeams(lines[line_no])) {
-			num_of_teams = getNumTeams(lines[line_no]);
-			
+			num_of_teams = getNumOfTeams(lines[line_no]);
+
 			// if num_of_teams is 0, skip all the process and end the loop
 			if (num_of_teams) {
 				printScenario(scenario_no);
 				createTeams(teams, num_of_teams);
 				line_no++;
-				
+
 				// store team information
 				for (team_no = 0; team_no < num_of_teams; team_no++) {
 					addMembers(teams, team_no, lines[line_no]);
+					// printTeam(teams, team_no); // remove comment to debug
 					line_no++;
 				}
-				
+
 				// process commands
 				stop = false;
 				while (!stop) {
 					if (isEnqueue(lines[line_no])) {
 						id_no = getEnqueueID(lines[line_no]);
 						team_no = getTeamNo(teams, num_of_teams, id_no);
+						// printTeam(id_no, team_no);
 						// ENQUEUE
 						// Search Team Number in Team Queue
 						// If found, then insert a node
@@ -97,10 +112,9 @@ int main() {
 				}
 			}
 		}
-		line_no++;
 	}
-	
-	system("pause");	
+
+	system("pause");
 	return 0;
 }
 
@@ -142,19 +156,23 @@ bool isTeams(string line) { return isdigit(line[0]); }
 // Converts an input into number of teams.
 // @param: string
 // @return: int
-int getNumTeams(string line) { return stoi(line); }
+int getNumOfTeams(string line) { 
+	int num_of_teams;
+	(isTeams(line)) ? num_of_teams = stoi(line) : num_of_teams = -1;
+	return num_of_teams;
+}
 
 // Displays Scenario number.
 // @param: int (pass by reference)
 void printScenario(int& scenario_no) {
-	cout << "Scenario #" + to_string(scenario_no) + \n;
+	cout << "Scenario #" + to_string(scenario_no) + "\n";
 	scenario_no++;
 }
 
 // Creates an array of teams. The index of the array is the team number.
-// @param: pointer to an array of int (pass by pointer), int 
-void createTeams(int** teams, int num_of_teams) {
-	teams = new int* [num_of_teams];
+// @param: pointer to an array of int (pass by reference), int 
+void createTeams(int** &teams, int num_of_teams) {
+	teams = new int*[num_of_teams];
 }
 
 // Add members into a team.
@@ -163,17 +181,32 @@ void addMembers(int** teams, int team_no, string line) {
 	stringstream stream(line);
 	int num_of_members, id_no;
 	int* this_team;
-	
+
 	stream >> num_of_members;
-	teams[team_no] = new int [num_of_members + 1];
-	this_team = teams[team_no];
-	
+	this_team = new int[num_of_members + 1];
+	teams[team_no] = this_team;
+
 	// Since dynamic array cannot tell its length, I store the
 	// Number of members of that team in the index 0 of that array.
 	this_team[0] = num_of_members;
-	for (int member = 1; member < num_of_members + 1; member++) {
+	for (int member = 1; member <= num_of_members; member++) {
 		stream >> id_no;
 		this_team[member] = id_no;
+	}
+}
+
+// Displays Team number and all members of the team. Debug purpose.
+// @param: pointer to an array of int (pass by pointer), int
+void printTeam(int** teams, int team_no) {
+	int* this_team;
+	int num_of_members;
+
+	this_team = teams[team_no];
+	num_of_members = this_team[0];
+	cout << "Team No.: " << team_no << "\n";
+	cout << " | Number of members: " << num_of_members << "\n";
+	for (int member = 1; member <= num_of_members; member++) {
+		cout << " | ID: " << this_team[member] << "\n";
 	}
 }
 
@@ -184,7 +217,7 @@ bool isEnqueue(string line) {
 	stringstream stream(line);
 	string command;
 	bool enqueue = false;
-	
+
 	stream >> command;
 	if (command == "ENQUEUE")
 		enqueue = true;
@@ -198,7 +231,7 @@ int getEnqueueID(string line) {
 	stringstream stream(line);
 	string command;
 	int id_no = -1;
-	
+
 	stream >> command >> id_no;
 	return id_no;
 }
@@ -213,14 +246,14 @@ int getTeamNo(int** teams, int num_of_teams, int id_no) {
 	int member;
 	int* this_team;
 	bool found = false;
-	
+
 	// Search algorithm is linear search, as ID numbers are not sorted.
 	while (!found && index < num_of_teams) {
 		this_team = teams[index];
 		num_of_members = this_team[0];
 		member = 1;
 		while (!found && member <= num_of_members) {
-			if (id_no == this_team[member]){
+			if (id_no == this_team[member]) {
 				team_no = index;
 				found = true;
 			}
@@ -228,8 +261,15 @@ int getTeamNo(int** teams, int num_of_teams, int id_no) {
 		}
 		index++;
 	}
-	
+
 	return team_no;
+}
+
+// Displays Member's ID and team number. Debug purpose.
+// @param: int, int
+void printTeam(int id_no, int team_no) {
+	cout << "Team No.: " << team_no << "\n";
+	cout << " | ID: " << id_no << "\n";
 }
 
 // Check if the input is dequeue.
@@ -239,7 +279,7 @@ bool isDequeue(string line) {
 	stringstream stream(line);
 	string command;
 	bool dequeue = false;
-	
+
 	stream >> command;
 	if (command == "DEQUEUE")
 		dequeue = true;
@@ -253,7 +293,7 @@ bool isStop(string line) {
 	stringstream stream(line);
 	string command;
 	bool stop = false;
-	
+
 	stream >> command;
 	if (command == "STOP")
 		stop = true;
@@ -261,11 +301,11 @@ bool isStop(string line) {
 }
 
 // Deletes an array of teams and all of its content.
-void deleteTeams(int** teams, int num_of_teams) {
+void deleteTeams(int** &teams, int num_of_teams) {
 	for (int team_no = 0; team_no < num_of_teams; team_no++) {
 		delete[] teams[team_no];
 		teams[team_no] = nullptr;
 	}
-	delete[][] teams;
+	delete[] teams;
 	teams = nullptr;
 }
