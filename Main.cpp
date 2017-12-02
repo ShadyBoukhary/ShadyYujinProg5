@@ -13,11 +13,20 @@
 using namespace std;
 
 // Opens an input file.
-ifstream openFile(string filename);
+ifstream openInputFile(string file_name);
 
 // Imports team data and queues from an input file into an array of string.
 // The index of the array is the line number.
-int import(string lines[]);
+int importString(string lines[]);
+
+// Opens an output file in truncate, then delete current content.
+void initializeOutputFile();
+
+// Opens an output file in append.
+ofstream openOutputFile(string file_name);
+
+// Displays string and exports string into output file.
+void exportString(string s);
 
 // Checks whether an input is about creating a team or about queueing.
 bool isTeams(string line);
@@ -34,9 +43,6 @@ void createTeams(int** &teams, int num_of_teams);
 // Add members into a team. The index of the array is the ID number.
 void addMembers(int** teams, int team_no, string line);
 
-// Displays Team number and all members of the team. Debug purpose.
-void printTeam(int** teams, int team_no);
-
 // Check if the input is enqueue.
 bool isEnqueue(string line);
 
@@ -46,17 +52,23 @@ int getEnqueueID(string line);
 // Searches ID number in the array of teams and tell its team number.
 int getTeamNo(int** teams, int num_of_teams, int id_no);
 
-// Displays Member's ID and team number. Debug purpose.
-void printTeam(int id_no, int team_no);
-
 // Check if the input is dequeue.
 bool isDequeue(string line);
 
 // Check if the input is stop.
 bool isStop(string line);
 
+// Displays Scenario number.
+void printBlankLine();
+
 // Deletes an array of teams and all of its content.
 void deleteTeams(int** &teams, int num_of_teams);
+
+// Displays Team number and all members of the team. Debug purpose.
+void printTeam(int** teams, int team_no);
+
+// Displays Member's ID and team number. Debug purpose.
+void printMember(int id_no, int team_no);
 
 int main() {
 	string lines[255];
@@ -69,7 +81,8 @@ int main() {
 	int** teams;
 	bool stop;
 
-	length = import(lines);
+	initializeOutputFile();
+	length = importString(lines);
 	while (line_no < length && num_of_teams > 0) {
 		if (isTeams(lines[line_no])) {
 			num_of_teams = getNumOfTeams(lines[line_no]);
@@ -83,7 +96,6 @@ int main() {
 				// store team information
 				for (team_no = 0; team_no < num_of_teams; team_no++) {
 					addMembers(teams, team_no, lines[line_no]);
-					// printTeam(teams, team_no); // remove comment to debug
 					line_no++;
 				}
 
@@ -93,7 +105,6 @@ int main() {
 					if (isEnqueue(lines[line_no])) {
 						id_no = getEnqueueID(lines[line_no]);
 						team_no = getTeamNo(teams, num_of_teams, id_no);
-						// printTeam(id_no, team_no);
 						// ENQUEUE
 						// Search Team Number in Team Queue
 						// If found, then insert a node
@@ -105,6 +116,7 @@ int main() {
 						// just like ordinary Queue
 					}
 					else if (isStop(lines[line_no])) {
+						printBlankLine();
 						deleteTeams(teams, num_of_teams);
 						stop = true;
 					}
@@ -119,10 +131,9 @@ int main() {
 }
 
 // Opens an input file.
-// @param: none
+// @param: string
 // @return: ifstream
-ifstream openFile(string filename) {
-	string file_name = filename;
+ifstream openInputFile(string file_name) {
 	ifstream myfile(file_name);
 	return myfile;
 }
@@ -131,11 +142,12 @@ ifstream openFile(string filename) {
 // The index of the array is the line number.
 // @param: array of string (pass by pointer)
 // @return: int
-int import(string lines[]) {
-	int length = 0;
+int importString(string lines[]) {
+	string file_name = "prog5data.txt";
 	string line;
+	int length = 0;
 
-	ifstream myfile = openFile("prog5data.txt");
+	ifstream myfile = openInputFile(file_name);
 	if (myfile.is_open()) {
 		while (getline(myfile, line)) {
 			lines[length] = line;
@@ -146,6 +158,37 @@ int import(string lines[]) {
 	else { cout << "Unable to open file." << endl; }
 
 	return length;
+}
+
+// Opens an output file in truncate, then delete current content.
+// @param: string
+void initializeOutputFile() {
+	string file_name = "prog5output.txt";
+	ofstream myfile(file_name, ios_base::trunc);
+	if (myfile.is_open()) { myfile.close(); }
+	else { cout << "Unable to open file." << endl; }
+}
+
+// Opens an output file in append.
+// @param: string
+// @return: ofstream
+ofstream openOutputFile(string file_name) {
+	ofstream myfile(file_name, ios_base::app);
+	return myfile;
+}
+
+// Displays string and exports string into output file.
+// @param: string
+void exportString(string s) {
+	string file_name = "prog5output.txt";
+	ofstream myfile = openOutputFile(file_name);
+
+	if (myfile.is_open()) {
+		cout << s;
+		myfile << s;
+		myfile.close();
+	}
+	else { cout << "Unable to open file." << endl; }
 }
 
 // Checks whether an input is about creating a team or about queueing.
@@ -165,7 +208,7 @@ int getNumOfTeams(string line) {
 // Displays Scenario number.
 // @param: int (pass by reference)
 void printScenario(int& scenario_no) {
-	cout << "Scenario #" + to_string(scenario_no) + "\n";
+	exportString("Scenario #" + to_string(scenario_no) + "\n");
 	scenario_no++;
 }
 
@@ -192,21 +235,6 @@ void addMembers(int** teams, int team_no, string line) {
 	for (int member = 1; member <= num_of_members; member++) {
 		stream >> id_no;
 		this_team[member] = id_no;
-	}
-}
-
-// Displays Team number and all members of the team. Debug purpose.
-// @param: pointer to an array of int (pass by pointer), int
-void printTeam(int** teams, int team_no) {
-	int* this_team;
-	int num_of_members;
-
-	this_team = teams[team_no];
-	num_of_members = this_team[0];
-	cout << "Team No.: " << team_no << "\n";
-	cout << " | Number of members: " << num_of_members << "\n";
-	for (int member = 1; member <= num_of_members; member++) {
-		cout << " | ID: " << this_team[member] << "\n";
 	}
 }
 
@@ -265,13 +293,6 @@ int getTeamNo(int** teams, int num_of_teams, int id_no) {
 	return team_no;
 }
 
-// Displays Member's ID and team number. Debug purpose.
-// @param: int, int
-void printTeam(int id_no, int team_no) {
-	cout << "Team No.: " << team_no << "\n";
-	cout << " | ID: " << id_no << "\n";
-}
-
 // Check if the input is dequeue.
 // @param: string
 // @return: bool
@@ -300,6 +321,12 @@ bool isStop(string line) {
 	return stop;
 }
 
+// Displays Scenario number.
+// @param: int (pass by reference)
+void printBlankLine() {
+	exportString("\n");
+}
+
 // Deletes an array of teams and all of its content.
 void deleteTeams(int** &teams, int num_of_teams) {
 	for (int team_no = 0; team_no < num_of_teams; team_no++) {
@@ -308,4 +335,26 @@ void deleteTeams(int** &teams, int num_of_teams) {
 	}
 	delete[] teams;
 	teams = nullptr;
+}
+
+// Displays Team number and all members of the team. Debug purpose.
+// @param: pointer to an array of int (pass by pointer), int
+void printTeam(int** teams, int team_no) {
+	int* this_team;
+	int num_of_members;
+
+	this_team = teams[team_no];
+	num_of_members = this_team[0];
+	cout << "Team No.: " << team_no << "\n";
+	cout << " | Number of members: " << num_of_members << "\n";
+	for (int member = 1; member <= num_of_members; member++) {
+		cout << " | ID: " << this_team[member] << "\n";
+	}
+}
+
+// Displays Member's ID and team number. Debug purpose.
+// @param: int, int
+void printMember(int id_no, int team_no) {
+	cout << "Team No.: " << team_no << "\n";
+	cout << " | ID: " << id_no << "\n";
 }
