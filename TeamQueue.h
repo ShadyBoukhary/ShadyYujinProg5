@@ -1,31 +1,42 @@
 #pragma once
-#pragma once
+
+#include <string>
+
+
+template <class T>
+struct Node
+{
+	Node();
+	Node(T, int);
+	Node(const Node*);
+	~Node();
+	T data;
+	int team;
+	Node<T> * next;
+};
+
 
 template <class T>
 class TeamQueue
 {
+	typedef Node<T> Node;
 public:
-	TeamQueue<T>();
-	TeamQueue<T>(const TeamQueue<T>&);
-	~TeamQueue<T>();
+	TeamQueue();
+	TeamQueue(const TeamQueue<T>&);
+	~TeamQueue();
 
+	bool isEmpty();
 	void enqueue(T, int);
 	void dequeue();
+	int search(int);
+	std::string to_string(int);
 
-	void printQueue();
-
-	class Node
-	{
-	public:
-		Node();
-		Node(const Node*);
-		~Node();
-		T data;
-		int team;
-		Node * next;
-	};
 private:
 	Node * head;
-	Node * end;
+	Node * tail;
+	int num;
 };
 
+
+
+#include "TeamQueue.cpp"
