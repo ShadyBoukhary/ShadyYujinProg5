@@ -71,7 +71,7 @@ void printTeam(int** teams, int team_no);
 void printMember(int id_no, int team_no);
 
 int main() {
-	TeamQueue q;
+	TeamQueue<int> q;
 	string lines[255];
 	int length = 0;
 	int line_no = 0;
