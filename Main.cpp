@@ -1,11 +1,11 @@
 /**
 * This program demonstrates team queue.
-* @version 1.0 2017-12-01
+* @version 1.0 2017-12-02
 * @course CMPS2143 Dr. Stringfellow
 * @author Yujin Yoshimura, Shady Boukhary
 */
 
-//#include "TeamQueue.h"
+#include "TeamQueue.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -71,6 +71,7 @@ void printTeam(int** teams, int team_no);
 void printMember(int id_no, int team_no);
 
 int main() {
+	TeamQueue q;
 	string lines[255];
 	int length = 0;
 	int line_no = 0;
@@ -105,15 +106,10 @@ int main() {
 					if (isEnqueue(lines[line_no])) {
 						id_no = getEnqueueID(lines[line_no]);
 						team_no = getTeamNo(teams, num_of_teams, id_no);
-						// ENQUEUE
-						// Search Team Number in Team Queue
-						// If found, then insert a node
-						// If not found, then add a node at the tail
-						// Node includes both team_no and id_no
+						q.enqueue(id_no, team_no);
 					}
 					else if (isDequeue(lines[line_no])) {
-						// DEQUEUE
-						// just like ordinary Queue
+						q.dequeue();
 					}
 					else if (isStop(lines[line_no])) {
 						printBlankLine();
