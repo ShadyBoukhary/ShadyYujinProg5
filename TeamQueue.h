@@ -1,15 +1,20 @@
+/* Shady Boukhary
+TeamQueue.h	*/
+
 #pragma once
-
 #include <string>
-
 
 template <class T>
 struct Node
 {
+	// contructors
+
 	Node();
 	Node(T, int);
 	Node(const Node*);
-	~Node();
+
+	// Member data
+
 	T data;
 	int team;
 	Node<T> * next;
@@ -21,15 +26,27 @@ class TeamQueue
 {
 	typedef Node<T> Node;
 public:
+
+	// Constructors
+
 	TeamQueue();
 	TeamQueue(const TeamQueue<T>&);
 	~TeamQueue();
 
-	bool isEmpty();
+	// Predicates
+
+	bool isEmpty() const;
+
+	// Mutators
+
 	void enqueue(T, int);
 	void dequeue();
-	int search(int);
-	std::string to_string(int);
+
+	// Accessors
+
+	int search(int) const;
+	std::string to_string(int = 0) const;
+	int getNum() const;
 
 private:
 	Node * head;
