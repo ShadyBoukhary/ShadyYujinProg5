@@ -1,9 +1,9 @@
-/**
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * This program demonstrates team queue.
-* @version 1.0 2017-12-02
-* @course CMPS2143 Dr. Stringfellow
-* @author Yujin Yoshimura, Shady Boukhary
-*/
+* @version: 1.0 2017-12-02
+* @course: CMPS2143 Dr. Stringfellow
+* @author: Yujin Yoshimura, Shady Boukhary
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #include "TeamQueue.h"
 #include <iostream>
@@ -32,6 +32,7 @@ void exportString(string s);
 bool isTeams(string line);
 
 // Converts an input into number of teams.
+// Failure in conversion returns - 1.
 int getNumOfTeams(string line);
 
 // Displays Scenario number.
@@ -71,7 +72,6 @@ void printTeam(int** teams, int team_no);
 void printMember(int id_no, int team_no);
 
 int main() {
-	TeamQueue<int> q;
 	string lines[255];
 	int length = 0;
 	int line_no = 0;
@@ -100,7 +100,8 @@ int main() {
 					line_no++;
 				}
 
-				// process commands
+				// process team queue commands
+				TeamQueue<int> q;
 				stop = false;
 				while (!stop) {
 					if (isEnqueue(lines[line_no])) {
@@ -126,18 +127,24 @@ int main() {
 	return 0;
 }
 
-// Opens an input file.
-// @param: string
-// @return: ifstream
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Opens an input file.
+* @usage: myfile = openInputFile("input.txt");
+* @param: string
+* @return: ifstream
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 ifstream openInputFile(string file_name) {
 	ifstream myfile(file_name);
 	return myfile;
 }
 
-// Imports team data and queues from an input file into an array of string.
-// The index of the array is the line number.
-// @param: array of string (pass by pointer)
-// @return: int
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Imports team data and queues from an input file into an array of string.
+* The index of the array is the line number.
+* @usage: length = importString(lines);
+* @param: array of string (pass by pointer)
+* @return: int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int importString(string lines[]) {
 	string file_name = "prog5data.txt";
 	string line;
@@ -156,8 +163,11 @@ int importString(string lines[]) {
 	return length;
 }
 
-// Opens an output file in truncate, then delete current content.
-// @param: string
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Opens an output file in truncate, then delete current content.
+* @usage: initializeOutputFile();
+* @param: string
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void initializeOutputFile() {
 	string file_name = "prog5output.txt";
 	ofstream myfile(file_name, ios_base::trunc);
@@ -165,16 +175,22 @@ void initializeOutputFile() {
 	else { cout << "Unable to open file." << endl; }
 }
 
-// Opens an output file in append.
-// @param: string
-// @return: ofstream
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Opens an output file in append.
+* @usage: myfile = openOutputFile("output.txt");
+* @param: string
+* @return: ofstream
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 ofstream openOutputFile(string file_name) {
 	ofstream myfile(file_name, ios_base::app);
 	return myfile;
 }
 
-// Displays string and exports string into output file.
-// @param: string
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays string and exports string into output file.
+* @usage: exportString("Hello World!");
+* @param: string
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void exportString(string s) {
 	string file_name = "prog5output.txt";
 	ofstream myfile = openOutputFile(file_name);
@@ -187,35 +203,51 @@ void exportString(string s) {
 	else { cout << "Unable to open file." << endl; }
 }
 
-// Checks whether an input is about creating a team or about queueing.
-// @param: string
-// @return: bool
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Checks whether an input is about creating a team or about queueing.
+* @usage: if(isTeams("2")
+* @param: string
+* @return: bool
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 bool isTeams(string line) { return isdigit(line[0]); }
 
-// Converts an input into number of teams.
-// @param: string
-// @return: int
-int getNumOfTeams(string line) { 
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Converts an input into number of teams.
+* Failure in conversion returns -1.
+* @usage: num_of_teams = getNumOfTeams("2");
+* @param: string
+* @return: int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int getNumOfTeams(string line) {
 	int num_of_teams;
 	(isTeams(line)) ? num_of_teams = stoi(line) : num_of_teams = -1;
 	return num_of_teams;
 }
 
-// Displays Scenario number.
-// @param: int (pass by reference)
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays Scenario number.
+* @usage: printScenario(scenario_no);
+* @param: int (pass by reference)
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void printScenario(int& scenario_no) {
 	exportString("Scenario #" + to_string(scenario_no) + "\n");
 	scenario_no++;
 }
 
-// Creates an array of teams. The index of the array is the team number.
-// @param: pointer to an array of int (pass by reference), int 
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Creates an array of teams. The index of the array is the team number.
+* @usage: createTeams(teams, 2)
+* @param: pointer to an array of int (pass by reference), int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void createTeams(int** &teams, int num_of_teams) {
 	teams = new int*[num_of_teams];
 }
 
-// Add members into a team.
-// @param: pointer to an array of int (pass by pointer), int, string
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Add members into a team.
+* @usage: addMembers(teams, 0, "3 101 102 103")
+* @param: pointer to an array of int (pass by pointer), int, string
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void addMembers(int** teams, int team_no, string line) {
 	stringstream stream(line);
 	int num_of_members, id_no;
@@ -234,9 +266,12 @@ void addMembers(int** teams, int team_no, string line) {
 	}
 }
 
-// Check if the input is enqueue.
-// @param: string
-// @return: bool
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Check if the input is enqueue.
+* @usage: if(isEnqueue("ENQUEUE 101"))
+* @param: string
+* @return: bool
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 bool isEnqueue(string line) {
 	stringstream stream(line);
 	string command;
@@ -248,9 +283,12 @@ bool isEnqueue(string line) {
 	return enqueue;
 }
 
-// Parse enqueue command and gets ID number of the person enqueued.
-// @param: string
-// @return: int
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Parse enqueue command and gets ID number of the person enqueued.
+* @usage: id_no = getEnqueueID("ENQUEUE 101");
+* @param: string
+* @return: int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int getEnqueueID(string line) {
 	stringstream stream(line);
 	string command;
@@ -260,9 +298,12 @@ int getEnqueueID(string line) {
 	return id_no;
 }
 
-// Searches ID number in the array of teams and tell its team number.
-// @param: pointer to an array of int (pass by pointer), int, int
-// @return: int
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Searches ID number in the array of teams and tell its team number.
+* @usage: team_no = getTeamNo(teams, 2, 101);
+* @param: pointer to an array of int (pass by pointer), int, int
+* @return: int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 int getTeamNo(int** teams, int num_of_teams, int id_no) {
 	int team_no = -1;
 	int index = 0;
@@ -289,9 +330,12 @@ int getTeamNo(int** teams, int num_of_teams, int id_no) {
 	return team_no;
 }
 
-// Check if the input is dequeue.
-// @param: string
-// @return: bool
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Check if the input is dequeue.
+* @usage: if(isDequeue("DEQUEUE"))
+* @param: string
+* @return: bool
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 bool isDequeue(string line) {
 	stringstream stream(line);
 	string command;
@@ -303,9 +347,12 @@ bool isDequeue(string line) {
 	return dequeue;
 }
 
-// Check if the input is stop.
-// @param: string
-// @return: bool
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Check if the input is stop.
+* @usage: if(isStop("STOP"))
+* @param: string
+* @return: bool
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 bool isStop(string line) {
 	stringstream stream(line);
 	string command;
@@ -317,13 +364,20 @@ bool isStop(string line) {
 	return stop;
 }
 
-// Displays Scenario number.
-// @param: int (pass by reference)
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays Scenario number.
+* @usage: printBlankLine();
+* @param: int (pass by reference)
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void printBlankLine() {
 	exportString("\n");
 }
 
-// Deletes an array of teams and all of its content.
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Deletes an array of teams and all of its content.
+* @usage: deleteTeams(teams, 2);
+* @param: pointer to an array of int (pass by pointer), int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void deleteTeams(int** &teams, int num_of_teams) {
 	for (int team_no = 0; team_no < num_of_teams; team_no++) {
 		delete[] teams[team_no];
@@ -333,8 +387,11 @@ void deleteTeams(int** &teams, int num_of_teams) {
 	teams = nullptr;
 }
 
-// Displays Team number and all members of the team. Debug purpose.
-// @param: pointer to an array of int (pass by pointer), int
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays Team number and all members of the team. Debug purpose.
+* @usage: printTeam(teams, 0);
+* @param: pointer to an array of int (pass by pointer), int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void printTeam(int** teams, int team_no) {
 	int* this_team;
 	int num_of_members;
@@ -348,9 +405,11 @@ void printTeam(int** teams, int team_no) {
 	}
 }
 
-// Displays Member's ID and team number. Debug purpose.
-// @param: int, int
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays Member's ID and team number. Debug purpose.
+* @usage: printMember(101, 0);
+* @param: int, int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void printMember(int id_no, int team_no) {
-	cout << "Team No.: " << team_no << "\n";
-	cout << " | ID: " << id_no << "\n";
+	cout << "Team No.: " << team_no << " | ID: " << id_no << "\n";
 }
