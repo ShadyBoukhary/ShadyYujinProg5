@@ -35,7 +35,7 @@ bool isTeams(string line);
 // Failure in conversion returns - 1.
 int getNumOfTeams(string line);
 
-// Displays Scenario number.
+// Displays and outputs Scenario number.
 void printScenario(int& scenario_no);
 
 // Creates an array of teams. The index of the array is the team number.
@@ -56,20 +56,23 @@ int getTeamNo(int** teams, int num_of_teams, int id_no);
 // Check if the input is dequeue.
 bool isDequeue(string line);
 
+// Displays and outputs ID number of a member dequeued.
+void printID(int id_no);
+
 // Check if the input is stop.
 bool isStop(string line);
 
-// Displays Scenario number.
+// Displays and outputs blank line between scenarios.
 void printBlankLine();
 
 // Deletes an array of teams and all of its content.
 void deleteTeams(int** &teams, int num_of_teams);
 
 // Displays Team number and all members of the team. Debug purpose.
-void printTeam(int** teams, int team_no);
+void showTeam(int** teams, int team_no);
 
 // Displays Member's ID and team number. Debug purpose.
-void printMember(int id_no, int team_no);
+void showMember(int id_no, int team_no);
 
 int main() {
 	string lines[255];
@@ -85,6 +88,8 @@ int main() {
 	initializeOutputFile();
 	length = importString(lines);
 	while (line_no < length && num_of_teams > 0) {
+
+		// one loop per scenario
 		if (isTeams(lines[line_no])) {
 			num_of_teams = getNumOfTeams(lines[line_no]);
 
@@ -110,7 +115,8 @@ int main() {
 						q.enqueue(id_no, team_no);
 					}
 					else if (isDequeue(lines[line_no])) {
-						q.dequeue();
+						id_no = q.dequeue();
+						printID(id_no);
 					}
 					else if (isStop(lines[line_no])) {
 						printBlankLine();
@@ -119,7 +125,12 @@ int main() {
 					}
 					line_no++;
 				}
+				scenario_no++;
 			}
+		}
+		// if scenario does not begin with number of teams, skip that line
+		else {
+			line_no++;
 		}
 	}
 
@@ -225,13 +236,12 @@ int getNumOfTeams(string line) {
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-* Displays Scenario number.
+* Displays and outputs Scenario number.
 * @usage: printScenario(scenario_no);
 * @param: int (pass by reference)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void printScenario(int& scenario_no) {
 	exportString("Scenario #" + to_string(scenario_no) + "\n");
-	scenario_no++;
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -348,6 +358,15 @@ bool isDequeue(string line) {
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+* Displays and outputs ID number of a member dequeued.
+* @usage: printID(101);
+* @param: int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+void printID(int id_no) {
+	exportString(to_string(id_no) + "\n");
+}
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * Check if the input is stop.
 * @usage: if(isStop("STOP"))
 * @param: string
@@ -365,7 +384,7 @@ bool isStop(string line) {
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-* Displays Scenario number.
+* Displays and outputs blank line between scenarios.
 * @usage: printBlankLine();
 * @param: int (pass by reference)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
@@ -389,10 +408,10 @@ void deleteTeams(int** &teams, int num_of_teams) {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * Displays Team number and all members of the team. Debug purpose.
-* @usage: printTeam(teams, 0);
+* @usage: showTeam(teams, 0);
 * @param: pointer to an array of int (pass by pointer), int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-void printTeam(int** teams, int team_no) {
+void showTeam(int** teams, int team_no) {
 	int* this_team;
 	int num_of_members;
 
@@ -407,9 +426,9 @@ void printTeam(int** teams, int team_no) {
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * Displays Member's ID and team number. Debug purpose.
-* @usage: printMember(101, 0);
+* @usage: showMember(101, 0);
 * @param: int, int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-void printMember(int id_no, int team_no) {
+void showMember(int id_no, int team_no) {
 	cout << "Team No.: " << team_no << " | ID: " << id_no << "\n";
 }
