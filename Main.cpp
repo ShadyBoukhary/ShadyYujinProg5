@@ -1,6 +1,6 @@
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * This program demonstrates team queue.
-* @version: 1.0 2017-12-02
+* @version: 1.1 2017-12-04
 * @course: CMPS2143 Dr. Stringfellow
 * @author: Yujin Yoshimura, Shady Boukhary
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
@@ -15,10 +15,6 @@ using namespace std;
 // Opens an input file.
 ifstream openInputFile(string file_name);
 
-// Imports team data and queues from an input file into an array of string.
-// The index of the array is the line number.
-int importString(string lines[]);
-
 // Opens an output file in truncate, then delete current content.
 void initializeOutputFile();
 
@@ -28,21 +24,24 @@ ofstream openOutputFile(string file_name);
 // Displays string and exports string into output file.
 void exportString(string s);
 
-// Checks whether an input is about creating a team or about queueing.
-bool isTeams(string line);
-
 // Converts an input into number of teams.
 // Failure in conversion returns - 1.
-int getNumOfTeams(string line);
+int getNumOfTeams(ifstream &myfile);
 
 // Displays and outputs Scenario number.
 void printScenario(int& scenario_no);
 
 // Creates an array of teams. The index of the array is the team number.
-void createTeams(int** &teams, int num_of_teams);
+void createTeams(ifstream &myfile, int** &teams, int num_of_teams);
 
 // Add members into a team. The index of the array is the ID number.
-void addMembers(int** teams, int team_no, string line);
+void addMembers(ifstream &myfile, int** teams, int team_no);
+
+// Process Team Queue commands.
+void processCommand(ifstream &myfile, int** &teams, int num_of_teams);
+
+// Gets Team Queue command from input file.
+string getCommand(ifstream &myfile);
 
 // Check if the input is enqueue.
 bool isEnqueue(string line);
@@ -75,64 +74,26 @@ void showTeam(int** teams, int team_no);
 void showMember(int id_no, int team_no);
 
 int main() {
-	string lines[255];
-	int length = 0;
-	int line_no = 0;
+	ifstream infile;
+	string infile_name = "prog5data.txt";
 	int scenario_no = 1;
-	int num_of_teams = 1;
-	int team_no;
-	int id_no;
+	int num_of_teams;
 	int** teams;
-	bool stop;
 
+	infile = openInputFile(infile_name);
 	initializeOutputFile();
-	length = importString(lines);
-	while (line_no < length && num_of_teams > 0) {
 
-		// one loop per scenario
-		if (isTeams(lines[line_no])) {
-			num_of_teams = getNumOfTeams(lines[line_no]);
-
-			// if num_of_teams is 0, skip all the process and end the loop
-			if (num_of_teams) {
-				printScenario(scenario_no);
-				createTeams(teams, num_of_teams);
-				line_no++;
-
-				// store team information
-				for (team_no = 0; team_no < num_of_teams; team_no++) {
-					addMembers(teams, team_no, lines[line_no]);
-					line_no++;
-				}
-
-				// process team queue commands
-				TeamQueue<int> q;
-				stop = false;
-				while (!stop) {
-					if (isEnqueue(lines[line_no])) {
-						id_no = getEnqueueID(lines[line_no]);
-						team_no = getTeamNo(teams, num_of_teams, id_no);
-						q.enqueue(id_no, team_no);
-					}
-					else if (isDequeue(lines[line_no])) {
-						id_no = q.dequeue();
-						printID(id_no);
-					}
-					else if (isStop(lines[line_no])) {
-						printBlankLine();
-						deleteTeams(teams, num_of_teams);
-						stop = true;
-					}
-					line_no++;
-				}
-				scenario_no++;
-			}
+	// one loop per scenario
+	do {
+		num_of_teams = getNumOfTeams(infile);
+		// if num_of_teams is 0, skip all the process and end the loop
+		if (num_of_teams) {
+			printScenario(scenario_no);
+			createTeams(infile, teams, num_of_teams);
+			processCommand(infile, teams, num_of_teams);
+			scenario_no++;
 		}
-		// if scenario does not begin with number of teams, skip that line
-		else {
-			line_no++;
-		}
-	}
+	} while (num_of_teams > 0);
 
 	system("pause");
 	return 0;
@@ -146,32 +107,9 @@ int main() {
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 ifstream openInputFile(string file_name) {
 	ifstream myfile(file_name);
+	if(!myfile.is_open())
+		cout << "Unable to open file." << endl;
 	return myfile;
-}
-
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-* Imports team data and queues from an input file into an array of string.
-* The index of the array is the line number.
-* @usage: length = importString(lines);
-* @param: array of string (pass by pointer)
-* @return: int
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int importString(string lines[]) {
-	string file_name = "prog5data.txt";
-	string line;
-	int length = 0;
-
-	ifstream myfile = openInputFile(file_name);
-	if (myfile.is_open()) {
-		while (getline(myfile, line)) {
-			lines[length] = line;
-			length++;
-		}
-		myfile.close();
-	}
-	else { cout << "Unable to open file." << endl; }
-
-	return length;
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -215,23 +153,18 @@ void exportString(string s) {
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-* Checks whether an input is about creating a team or about queueing.
-* @usage: if(isTeams("2")
-* @param: string
-* @return: bool
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-bool isTeams(string line) { return isdigit(line[0]); }
-
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * Converts an input into number of teams.
 * Failure in conversion returns -1.
-* @usage: num_of_teams = getNumOfTeams("2");
-* @param: string
+* @usage: num_of_teams = getNumOfTeams(infile);
+* @param: ifstream (pass by reference)
 * @return: int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-int getNumOfTeams(string line) {
+int getNumOfTeams(ifstream &myfile) {
+	string line;
 	int num_of_teams;
-	(isTeams(line)) ? num_of_teams = stoi(line) : num_of_teams = -1;
+
+	getline(myfile, line);
+	(isdigit(line[0])) ? num_of_teams = stoi(line) : num_of_teams = -1;
 	return num_of_teams;
 }
 
@@ -249,20 +182,25 @@ void printScenario(int& scenario_no) {
 * @usage: createTeams(teams, 2)
 * @param: pointer to an array of int (pass by reference), int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-void createTeams(int** &teams, int num_of_teams) {
+void createTeams(ifstream &myfile, int** &teams, int num_of_teams) {
 	teams = new int*[num_of_teams];
+	for (int team_no = 0; team_no < num_of_teams; team_no++) {
+		addMembers(myfile, teams, team_no);
+	}
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 * Add members into a team.
-* @usage: addMembers(teams, 0, "3 101 102 103")
-* @param: pointer to an array of int (pass by pointer), int, string
+* @usage: addMembers(infile, teams, 0)
+* @param: ifstream (pass by reference), pointer to an array of int, int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-void addMembers(int** teams, int team_no, string line) {
-	stringstream stream(line);
+void addMembers(ifstream &myfile, int** teams, int team_no) {
+	string line;
 	int num_of_members, id_no;
 	int* this_team;
 
+	getline(myfile, line);
+	stringstream stream(line);
 	stream >> num_of_members;
 	this_team = new int[num_of_members + 1];
 	teams[team_no] = this_team;
@@ -274,6 +212,49 @@ void addMembers(int** teams, int team_no, string line) {
 		stream >> id_no;
 		this_team[member] = id_no;
 	}
+}
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\
+* Process Team Queue commands.
+* @usage: processCommand(infile, teams, 2);
+* @param: ifstream (pass by reference), pointer to an array of int, int
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+void processCommand(ifstream &myfile, int** &teams, int num_of_teams) {
+	string command;
+	int id_no;
+	int team_no;
+	bool stop = false;
+	TeamQueue<int> q;
+
+	do {
+		command = getCommand(myfile);
+		if (isEnqueue(command)) {
+			id_no = getEnqueueID(command);
+			team_no = getTeamNo(teams, num_of_teams, id_no);
+			q.enqueue(id_no, team_no);
+		}
+		else if (isDequeue(command)) {
+			id_no = q.dequeue();
+			printID(id_no);
+		}
+		else if (isStop(command)) {
+			printBlankLine();
+			deleteTeams(teams, num_of_teams);
+			stop = true;
+		}
+	} while (!stop);
+}
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+\
+* Gets Team Queue command from input file.
+* @usage: command = getCommand(infile);
+* @param: ifstream (pass by reference)
+* @return: string
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+string getCommand(ifstream &myfile) {
+	string line;
+	getline(myfile, line);
+	return line;
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
