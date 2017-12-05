@@ -87,6 +87,11 @@ void showMember(int id_no, int team_no);
 // verifies input for an integer for menu purposes
 int validInteger();
 
+//prints header
+void printHeader(int);
+
+
+
 int main() {
 	ifstream infile;
 	string infile_name = "prog5data.txt";
@@ -96,7 +101,7 @@ int main() {
 
 	infile = openInputFile(infile_name);
 	initializeOutputFile();
-
+	printHeader(1);
 	// one loop per scenario
 	do {
 		num_of_teams = getNumOfTeams(infile);
@@ -109,6 +114,7 @@ int main() {
 		}
 	} while (num_of_teams > 0);
 
+	printHeader(2);
 	system("pause");
 	return 0;
 }
@@ -495,6 +501,28 @@ int validInteger()
 		cout << "Invalid input. Try again: ";
 		cin >> x;
 	}
-
 	return x;
+}
+
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*									printHeader()							  +
+* @param: integer															  +
+* @return none																  +
+* prints header or goodbye message depending on parameter					  +
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+void printHeader(int x)
+{
+	if (x == 1)
+	{
+		string s = "Shady Boukary, Yujin Yoshimura\n";
+		s += "TeamQueue HW5\n";
+		s += "------------------------------\n\n";
+		exportString(s);
+	}
+	else
+	{
+		string s = "\n\n**********THANK YOU**********\n\n";
+		exportString(s);
+	}
 }
