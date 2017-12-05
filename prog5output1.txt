@@ -9,12 +9,11 @@ Dequeued:
 
 ID       TEAM ID
 ----     -------
-101         0
-102         0
-103         0
-201         1
-202         1
-203         1
+261         1
+251         0
+252         0
+253         0
+254         0
 
 Scenario #2
 
@@ -23,12 +22,15 @@ Dequeued:
 
 ID       TEAM ID
 ----     -------
-251         0
+252         0
 252         0
 253         0
-254         0
 255         0
-261         1
+254         0
+701         2
+461         1
+463         1
+809         3
 
 Scenario #3
 
@@ -37,24 +39,30 @@ Dequeued:
 
 ID       TEAM ID
 ----     -------
-252         0
-251         0
-252         0
-253         0
-255         0
-254         0
-704         2
-701         2
-462         1
-461         1
-463         1
-809         3
+654         5
+707         4
+702         4
+103         1
+104         1
+644         5
+2           6
+402         3
+401         3
+402         3
+403         3
 
-Cannot dequeue from an empty list!
+Scenario #4
 
-Cannot dequeue from an empty list!
+Dequeued:
+---------
 
-Cannot dequeue from an empty list!
+ID       TEAM ID
+----     -------
+305         1
+309         1
+302         1
+207         0
+103         0
 
 
 
