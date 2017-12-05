@@ -84,8 +84,8 @@ TeamQueue<T>::~TeamQueue()
 		while (current->next != nullptr)
 		{
 			delete current;
-			current = nxt->next;
-			nxt = current->next;
+			current = nxt;
+			nxt = nxt->next;
 		}
 	}
 
@@ -224,12 +224,14 @@ void TeamQueue<T>::enqueue(T data, int team)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 template <class T>
-void TeamQueue<T>::dequeue()
+std::string TeamQueue<T>::dequeue()
 {
 	if (isEmpty())
-		cout << "\nCannot dequeue from an empty list!\n";
+		return "\nCannot dequeue from an empty list!\n";
 
-	else if (head == tail)
+	std::string output = to_string(head->team, head->data, 1);
+
+	if (head == tail)
 	{
 		delete head;
 		head = tail = nullptr;
@@ -247,6 +249,7 @@ void TeamQueue<T>::dequeue()
 		delete toDelete;
 		num--;
 	}
+	return output;
 }
 
 
@@ -260,9 +263,10 @@ void TeamQueue<T>::dequeue()
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 template <class T>
-std::string TeamQueue<T>::to_string(int x = 0) const
+std::string TeamQueue<T>::to_string(int team, T data, int x) const
 {
-	std::ostringstream s << "";
+	std::ostringstream s;
+	s << "";
 
 	/*returns a string of everything in the queue*/
 
@@ -273,7 +277,7 @@ std::string TeamQueue<T>::to_string(int x = 0) const
 			<< "\nID" << std::setw(15) << "TEAM ID\n"
 			<< "----" << std::setw(13) << "-------\n";
 		Node * current = head;
-		while (current != null)
+		while (current != nullptr)
 		{
 			s << std::left << std::setw(4) << current->data << std::right
 				<< std::setw(10) << current->team << "\n";
@@ -281,14 +285,13 @@ std::string TeamQueue<T>::to_string(int x = 0) const
 		}
 		s << "\n\n" << "---------\n" << "Total: " << num;
 	}
-
-	/* returns a string for dequeueing list header */
+	
+	/* returns a string with last dequeued element*/
 
 	else if (x == 1)
 	{
-		s << "\n\nDequeued:\n" << "---------\n"
-			<< "\nID" << std::setw(15) << "TEAM ID\n"
-			<< "----" << std::setw(13) << "-------\n";
+		s << std::left << std::setw(4) << data
+			<< std::right << std::setw(9) << team << "\n";
 	}
 
 	/* returns a string for a complete log of events (dequeue & enqueue) */
@@ -303,6 +306,17 @@ std::string TeamQueue<T>::to_string(int x = 0) const
 	return s.str();
 }
 
+template <class T>
+std::string TeamQueue<T>::to_string() const
+{
+	/* returns a string for dequeueing list header */
+
+	std::ostringstream s;
+	s << "\n\nDequeued:\n" << "---------\n"
+		<< "\nID" << std::setw(15) << "TEAM ID\n"
+		<< "----" << std::setw(13) << "-------\n";
+	return s.str();
+}
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 +					 getNum()					  +

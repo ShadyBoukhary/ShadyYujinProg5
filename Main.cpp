@@ -56,7 +56,7 @@ int getTeamNo(int** teams, int num_of_teams, int id_no);
 bool isDequeue(string line);
 
 // Displays and outputs ID number of a member dequeued.
-void printID(int id_no);
+void printID(string);
 
 // Check if the input is stop.
 bool isStop(string line);
@@ -222,10 +222,11 @@ void addMembers(ifstream &myfile, int** teams, int team_no) {
 void processCommand(ifstream &myfile, int** &teams, int num_of_teams) {
 	string command;
 	int id_no;
+	string output;
 	int team_no;
 	bool stop = false;
 	TeamQueue<int> q;
-
+	exportString(q.to_string());
 	do {
 		command = getCommand(myfile);
 		if (isEnqueue(command)) {
@@ -234,8 +235,8 @@ void processCommand(ifstream &myfile, int** &teams, int num_of_teams) {
 			q.enqueue(id_no, team_no);
 		}
 		else if (isDequeue(command)) {
-			id_no = q.dequeue();
-			printID(id_no);
+			output = q.dequeue();
+			printID(output);
 		}
 		else if (isStop(command)) {
 			printBlankLine();
@@ -343,8 +344,8 @@ bool isDequeue(string line) {
 * @usage: printID(101);
 * @param: int
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
-void printID(int id_no) {
-	exportString(to_string(id_no) + "\n");
+void printID(string output) {
+	exportString(output);
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

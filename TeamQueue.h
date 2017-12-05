@@ -40,12 +40,13 @@ public:
 	// Mutators
 
 	void enqueue(T, int);
-	void dequeue();
+	std::string dequeue();
 
 	// Accessors
 
 	int search(int) const;
-	std::string to_string(int = 0) const;
+	std::string to_string(int, T, int x) const;
+	std::string to_string() const;
 	int getNum() const;
 
 private:

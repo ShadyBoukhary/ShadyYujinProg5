@@ -1,0 +1,57 @@
+Scenario #1
+
+
+Dequeued:
+---------
+
+ID       TEAM ID
+----     -------
+101         0
+102         0
+103         0
+201         1
+202         1
+203         1
+
+Scenario #2
+
+
+Dequeued:
+---------
+
+ID       TEAM ID
+----     -------
+251         0
+252         0
+253         0
+254         0
+255         0
+261         1
+
+Scenario #3
+
+
+Dequeued:
+---------
+
+ID       TEAM ID
+----     -------
+252         0
+251         0
+252         0
+253         0
+255         0
+254         0
+704         2
+701         2
+462         1
+461         1
+463         1
+809         3
+
+Cannot dequeue from an empty list!
+
+Cannot dequeue from an empty list!
+
+Cannot dequeue from an empty list!
+
