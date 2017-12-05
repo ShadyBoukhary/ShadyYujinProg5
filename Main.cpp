@@ -1,9 +1,20 @@
-/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-* This program demonstrates team queue.
-* @version: 1.1 2017-12-04
-* @course: CMPS2143 Dr. Stringfellow
-* @author: Yujin Yoshimura, Shady Boukhary
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*						Shady Boukhary; Yujin Yoshimura							*
+*					 CMPS 2132 Object-Oriented Programming						*
+*							   Dr. Stringfellow									*
+*								HW5: TeamQueue									*
+*								  12/06/2017									*
+*																				*
+*	This program reads from an input file team members of different teams.		*
+*	Then, it reads commands to enqueue certain team members or dequeue from		*
+*	a team queue. When the command is enqueue, the program checks whether a		*
+*	member of the same team already is in the queue. If that is the case, the	*
+*	the member is enqueue right behind his team in the queue, skipping all of	*
+*	the members of other teams. If that is not the case, the member is then		*
+*	enqueued at the very back of the queue, behind all other teams. As members	*
+*	are dequeued from the queue, the program prints to the screen and a file	*
+*	the members dequeued and their corresponding team number in a nice table	*
+*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 
 #include "TeamQueue.h"
 #include <iostream>
@@ -73,6 +84,9 @@ void showTeam(int** teams, int team_no);
 // Displays Member's ID and team number. Debug purpose.
 void showMember(int id_no, int team_no);
 
+// verifies input for an integer for menu purposes
+int validInteger();
+
 int main() {
 	ifstream infile;
 	string infile_name = "prog5data.txt";
@@ -106,9 +120,36 @@ int main() {
 * @return: ifstream
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 ifstream openInputFile(string file_name) {
-	ifstream myfile(file_name);
-	if(!myfile.is_open())
-		cout << "Unable to open file." << endl;
+	int choice = 0;
+	cout << "Would you like to Enter input filename? DEFAULT: prog5data.txt\n";
+	cout << "1. YES\n2. Use Default\n";
+	choice = validInteger();
+	system("cls");
+
+	if (choice == 1)
+	{
+		cout << "Enter input file name: ";
+		cin.ignore();
+		getline(cin, file_name);
+	}
+
+	system("cls");
+	ifstream myfile;
+
+	// try to open input file
+
+	try
+	{
+		myfile.open(file_name.c_str());
+		if (!myfile.is_open())
+			throw string("Unable to open file. Terminating\n");
+	}
+	catch (string message)
+	{
+		cout << message;
+		system("pause");
+		exit(1);
+	}
 	return myfile;
 }
 
@@ -119,9 +160,21 @@ ifstream openInputFile(string file_name) {
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void initializeOutputFile() {
 	string file_name = "prog5output.txt";
-	ofstream myfile(file_name, ios_base::trunc);
-	if (myfile.is_open()) { myfile.close(); }
-	else { cout << "Unable to open file." << endl; }
+	ofstream myfile;
+	try
+	{
+		myfile.open(file_name, ios_base::trunc);
+		if (!myfile)
+			throw string("Unable to open output file.Terminating\n");
+		else
+			myfile.close();
+	}
+	catch (string error)
+	{
+		cout << error;
+		system("pause");
+		exit(1);
+	}
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -131,7 +184,19 @@ void initializeOutputFile() {
 * @return: ofstream
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 ofstream openOutputFile(string file_name) {
-	ofstream myfile(file_name, ios_base::app);
+	ofstream myfile;
+	try
+	{
+		myfile.open(file_name, ios_base::app);
+		if (!myfile)
+			throw string("Unable to open output file. Terminating\n");
+	}
+	catch (string error)
+	{
+		cout << error;
+		system("pause");
+		exit(1);
+	}
 	return myfile;
 }
 
@@ -144,12 +209,10 @@ void exportString(string s) {
 	string file_name = "prog5output.txt";
 	ofstream myfile = openOutputFile(file_name);
 
-	if (myfile.is_open()) {
-		cout << s;
-		myfile << s;
-		myfile.close();
-	}
-	else { cout << "Unable to open file." << endl; }
+	cout << s;
+	myfile << s;
+	myfile.close();
+
 }
 
 /*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -413,4 +476,25 @@ void showTeam(int** teams, int team_no) {
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 void showMember(int id_no, int team_no) {
 	cout << "Team No.: " << team_no << " | ID: " << id_no << "\n";
+}
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*									validInteger()							  +
+* @param: none																  +
+* @return integer															  +
+* reads a verified integer from the keyboard								  +
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
+int validInteger()
+{
+	int x;
+	cin >> x;
+	while (cin.fail())
+	{
+		cin.clear();
+		cin.ignore(120, '\n');
+		cout << "Invalid input. Try again: ";
+		cin >> x;
+	}
+
+	return x;
 }

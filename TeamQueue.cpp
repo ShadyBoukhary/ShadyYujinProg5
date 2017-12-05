@@ -226,30 +226,38 @@ void TeamQueue<T>::enqueue(T data, int team)
 template <class T>
 std::string TeamQueue<T>::dequeue()
 {
-	if (isEmpty())
-		return "\nCannot dequeue from an empty list!\n";
-
-	std::string output = to_string(head->team, head->data, 1);
-
-	if (head == tail)
+	try
 	{
-		delete head;
-		head = tail = nullptr;
-		num--;
-	}
-	else
-	{
-		// delete node in the front of queue
-		// assign new head
-		// decrement node counter
+		if (isEmpty())
+			throw string("\nCannot dequeue from an empty list!\n");
 
-		Node * toDelete = head;
-		head = head->next;
-		toDelete->next = nullptr;
-		delete toDelete;
-		num--;
+		std::string output = to_string(head->team, head->data, 1);
+
+		if (head == tail)
+		{
+			delete head;
+			head = tail = nullptr;
+			num--;
+		}
+		else
+		{
+			// delete node in the front of queue
+			// assign new head
+			// decrement node counter
+
+			Node * toDelete = head;
+			head = head->next;
+			toDelete->next = nullptr;
+			delete toDelete;
+			num--;
+		}
+		return output;
 	}
-	return output;
+	catch (string message)
+	{
+		return message;
+	}
+	
 }
 
 
@@ -306,13 +314,21 @@ std::string TeamQueue<T>::to_string(int team, T data, int x) const
 	return s.str();
 }
 
+
+/*+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
++						to_string()							  +
++ @param none							 					  +
++ @return string											  +
++ Precondition: none										  +
++ Postcondition: returns a string for printing purposes 	  +
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+*/
 template <class T>
 std::string TeamQueue<T>::to_string() const
 {
 	/* returns a string for dequeueing list header */
 
 	std::ostringstream s;
-	s << "\n\nDequeued:\n" << "---------\n"
+	s << "\nDequeued:\n" << "---------\n"
 		<< "\nID" << std::setw(15) << "TEAM ID\n"
 		<< "----" << std::setw(13) << "-------\n";
 	return s.str();

@@ -44,10 +44,13 @@ public:
 
 	// Accessors
 
+	int getNum() const;
 	int search(int) const;
+
+	// to_string methods
+
 	std::string to_string(int, T, int x) const;
 	std::string to_string() const;
-	int getNum() const;
 
 private:
 	Node * head;
